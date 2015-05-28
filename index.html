@@ -35,6 +35,7 @@
         <button id="benchmark">Benchmark</button>
         <button id="generate">Start Over</button>
         <button id="calculate">Find Path</button>
+        <input type="checkbox" id="allow-wrap"/><label for="allow-wrap">Allow Wrap Around</label>
 
         <script type="text/javascript">
             var cells = [];
@@ -147,21 +148,24 @@
 
             function save (grid) {
                 localStorage.setItem("grid", JSON.stringify(grid));
+                localStorage.setItem("wrap", $("#allow-wrap").prop("checked") ? "1" : "0");
             }
 
             function load () {
                 var grid = localStorage.getItem("grid") || null;
+                var wrap = localStorage.getItem("wrap") ? true : false;
                 if (grid) {
                     grid = JSON.parse(grid);
                 }
                 generate(30, 30, grid);
+                $("#allow-wrap").prop("checked", wrap);
             }
 
             $(document).ready(function() {
                 load();
                 $("#calculate").on("click", function () {
                     var grid = getGrid();
-                    var model = new SimpleModel(grid);
+                    var model = new SimpleModel(grid, $("#allow-wrap").prop("checked"));
                     save(grid);
 
                     var path = aStar(model, start, end);
@@ -182,7 +186,7 @@
                 });
 
                 $("#benchmark").on("click", function () {
-                    var model = new SimpleModel(getGrid());
+                    var model = new SimpleModel(getGrid(), $("#allow-wrap").prop("checked"));
 
                     var finish = new Date();
                     finish.setSeconds(finish.getSeconds() + 3);

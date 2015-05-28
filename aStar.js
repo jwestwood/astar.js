@@ -58,11 +58,12 @@ Node.prototype = {
  *                  considered by the algorithm. 0 indicates the node is impassable.
  *                  Any other value indicates the node is passable.
  */
-function SimpleModel(grid) {
+function SimpleModel(grid, allowWrapAround) {
      if (!(this instanceof SimpleModel)) {
         return new SimpleModel(grid);
     }
     this.grid = grid;
+    this.allowWrapAround = allowWrapAround;
 }
 SimpleModel.prototype = {
     /**
@@ -73,8 +74,26 @@ SimpleModel.prototype = {
      */
     getNeighbours: function (node) {
         var neighbours = [];
-        for (var y = node.y - 1; y <= node.y + 1; y++) {
-            for (var x = node.x - 1; x <= node.x + 1; x++) {
+        for (var a = -1; a < 2; a++) {
+            for (var b = -1; b < 2; b++) {
+                var y = node.y + a;
+                var x = node.x + b;
+
+                // Wrap nodes outside the grid to the other side
+                if (this.allowWrapAround) {
+                    if (y < 0) {
+                        y = this.grid.length - 1;
+                    }
+                    if (x < 0) {
+                        if (y >= this.grid.length) {
+                            continue;
+                        }
+                        x = this.grid[y].length - 1;
+                    }
+                    y = y % this.grid.length;
+                    x = x % this.grid[y].length;
+                }
+
                 if (y === node.y && x === node.x) {
                     continue;
                 }
@@ -95,7 +114,15 @@ SimpleModel.prototype = {
      * This simple example sums the x and y displacement of the two nodes.
      */
     heuristicEstimate: function (node, targetNode) {
-        return Math.abs(node.x - targetNode.x) + Math.abs(node.y - targetNode.y);
+        var xDisplacement = Math.abs(node.x - targetNode.x);
+        var yDisplacement = Math.abs(node.y - targetNode.y);
+
+        if (this.allowWrapAround) {
+            return Math.min(xDisplacement, this.grid.length - xDisplacement) +
+                   Math.min(yDisplacement, this.grid.length - yDisplacement);
+        } else {
+            return xDisplacement + yDisplacement;
+        }
     },
     /**
      * Calculates the cost of moving (in a single step) between two nodes.
