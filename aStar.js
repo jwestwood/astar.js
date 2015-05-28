@@ -121,27 +121,40 @@ SimpleModel.prototype = {
  * @returns - An array of nodes describing the path found. Or FALSE if no path exists.
  */
 function aStar(model, start, end) {
-    // As the algorithm first encounters every node it will store the current cost to the node
-    // from the starting point.
-    // These costs are used when deciding which node to visit next.
+
+    // g_score: lowest known cost from the start to a given node...
+    // This object maps each node against the cost of the best known path to that node.
+    // A node's best known cost may change if a shorter path is later found to it.
     var g_score = {};
     g_score[start] = 0;
 
-    // The estimated cost from the start, to the goal via the given point.
+    // f_score: estimation of the path cost from start to end via a given node...
+    // This object maps each node against an estimation of the total cost of the path if the node
+    // is included. As the algorithm runs, f_score will determine which node is searched next.
     var f_score = {};
     f_score[start] = model.heuristicEstimate(start, end);
 
-    // This object maps nodes in the path to the previous node that leads to it.
-    // The map functions the same as a tree, with a every node having a parent.
-    // This means when the goal node has been reached we can recursively lookup the previous
-    // node in the path using this map, and retrace the path from the goal to the start.
+    // backtrack_map: maps nodes to the node they are reachable from.
+    // When a new node is found, or a shorter path to a node is found, the node that it was reachable
+    // from is stored here. This creates a tree, where the root is the start node and every child node
+    // has a single parent.
+    // When the goal is found, this tree can traced backwards to give us the final path.
     var backtrack_map = {};
-    var closed = {};
+
+    // The open set contains all the nodes which are known to be pathable to. When checking a node's
+    // neighbours, new ones will be added to the open set. Only nodes in the open set are considered
+    // when choosing the next node to visit.
     var open = {};
     open[start] = start;
 
+    // Visited nodes are place in the closed set so they cannot be visited again. And can be ignored
+    // when calculating the costs of a node's neighbours.
+    var closed = {};
+
+    // The main loop of the algorithm
     while (Object.keys(open).length) {
-        // Find the node with the lowest cost
+
+        // First choose the node with the lowest estimated cost from the open set
         var lowest_cost = Infinity;
         var node;
         for (var k in open) {
@@ -152,7 +165,7 @@ function aStar(model, start, end) {
             }
         }
 
-        // Check if the goal has been reached...
+        // Check if this node is the goal
         // If so use the backtrack map to find our way back to the starting node
         // and return the path.
         if (node.equals(end)) {
@@ -163,11 +176,11 @@ function aStar(model, start, end) {
             return path;
         }
 
-        // Remove the node from the open list and put it into the closed list
+        // Remove the node from the open set and put it into the closed set
         delete open[node];
         closed[node] = node;
 
-        // Check each neighbour
+        // Check the node's neighbours and estimate their cost to reach the goal
         var neighbours = model.getNeighbours(node);
         for (var i = 0, neighbour; neighbour = neighbours[i]; i++) {
             if (neighbour in closed) { // ignore closed nodes

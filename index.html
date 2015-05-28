@@ -9,33 +9,32 @@
             .row:before, .row:after { content: " "; display: table;}
             .row:after { clear: both; }
             .row { *zoom: 1; }
-            * { margin: 0; padding:0; box-sizing:border-box; }
+            * { box-sizing:border-box; }
 
-            .cell { float:left; width:20px; height:20px; border: 1px solid #000; background-color:#eee; transition: background-color 0.2s; }
-            .cell.unwalkable { background-color:#555; }
-            .cell.start { background-color:#8f8; }
-            .cell.end { background-color:#f88; }
-            .cell.path { background-color:#ff8; }
+            .cell { float:left; width:16px; height:16px; border: 1px solid #000; background-color:#eee; transition: background-color 0.2s; }
+            .cell.unwalkable { background-color:#222; }
+            .cell.start { background-color:#4f4; }
+            .cell.end { background-color:#f44; }
+            .cell.path { background-color:#ff4; }
 
-            #grid { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+            #grid { margin-bottom:10px; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         </style>
         <script type="text/javascript" src="aStar.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
     </head>
     <body>
-        <h5>A*</h5>
+        <h2>A*</h2>
         <ol>
             <li>Click once to place the start square.</li>
             <li>Click a second time to place the end square.</li>
-            <li>After that clicking each square will toggle it passable or impassable</li>
-            <li>Click 'Find Path' to find the shortest path.</li>
+            <li>After that paint the impassable squares onto the grid.</li>
         </ol>
 
         <div id="grid"></div>
 
+        <button id="benchmark">Benchmark</button>
         <button id="generate">Start Over</button>
         <button id="calculate">Find Path</button>
-        <button id="benchmark">Benchmark</button>
 
         <script type="text/javascript">
             var cells = [];
@@ -155,7 +154,7 @@
                 if (grid) {
                     grid = JSON.parse(grid);
                 }
-                generate(16, 16, grid);
+                generate(30, 30, grid);
             }
 
             $(document).ready(function() {
@@ -179,7 +178,7 @@
 
 
                 $("#generate").on("click", function () {
-                    generate(16, 16);
+                    generate(30, 30);
                 });
 
                 $("#benchmark").on("click", function () {
