@@ -182,24 +182,26 @@ function aStar(model, start, end) {
 
         // Check the node's neighbours and estimate their cost to reach the goal
         var neighbours = model.getNeighbours(node);
-        for (var i = 0, neighbour; neighbour = neighbours[i]; i++) {
+        for (var i = 0, neighbour, g_score_node = g_score[node]; neighbour = neighbours[i]; i++) {
             if (neighbour in closed) { // ignore closed nodes
                 continue;
             }
+            // slight optimisation
+            var neighbour_ = neighbour.toString();
 
             // calculate the path cost to this neighbour along our current path.
-            var tentative_g_score = g_score[node] + model.movementCost(node, neighbour);
+            var tentative_g_score = g_score_node + model.movementCost(node, neighbour);
 
             // If the neighbour is previously unseen or the cost to this neighbour is lower
             // than its previously calculated cost.
             // Put the current node into the backtrack map as the way back from the neighbour.
             // And make a heuristicEstimate estimate for this neighbour.
-            if (!(neighbour in open) || tentative_g_score < g_score[neighbour]) {
-                backtrack_map[neighbour] = node;
-                g_score[neighbour] = tentative_g_score;
-                f_score[neighbour] = tentative_g_score + model.heuristicEstimate(neighbour, end);
+            if (!(neighbour in open) || tentative_g_score < g_score[neighbour_]) {
+                backtrack_map[neighbour_] = node;
+                g_score[neighbour_] = tentative_g_score;
+                f_score[neighbour_] = tentative_g_score + model.heuristicEstimate(neighbour, end);
                 if (!(neighbour in open)) {
-                    open[neighbour] = neighbour;
+                    open[neighbour_] = neighbour;
                 }
             }
         }
