@@ -60,7 +60,7 @@ Node.prototype = {
  */
 function SimpleModel(grid, allowWrapAround) {
      if (!(this instanceof SimpleModel)) {
-        return new SimpleModel(grid);
+        return new SimpleModel(grid, allowWrapAround);
     }
     this.grid = grid;
     this.allowWrapAround = allowWrapAround;
@@ -178,9 +178,11 @@ function aStar(model, start, end) {
     // when calculating the costs of a node's neighbours.
     var closed = {};
 
+    var loopCount = 0, updates = 0, nodesConsidered = 0;
+
     // The main loop of the algorithm
     while (Object.keys(open).length) {
-
+        loopCount++;
         // First choose the node with the lowest estimated cost from the open set
         var lowest_cost = Infinity;
         var node;
@@ -200,6 +202,7 @@ function aStar(model, start, end) {
             do {
                 node = backtrack_map[node];
             } while (node && path.unshift(node));
+            console.log(loopCount, nodesConsidered, updates);
             return path;
         }
 
@@ -224,12 +227,15 @@ function aStar(model, start, end) {
             // Put the current node into the backtrack map as the way back from the neighbour.
             // And make a heuristicEstimate estimate for this neighbour.
             if (!(neighbour in open) || tentative_g_score < g_score[neighbour_]) {
+                nodesConsidered++;
+                if (tentative_g_score < g_score[neighbour_]) {
+                    updates++;
+                }
+
                 backtrack_map[neighbour_] = node;
                 g_score[neighbour_] = tentative_g_score;
                 f_score[neighbour_] = tentative_g_score + model.heuristicEstimate(neighbour, end);
-                if (!(neighbour in open)) {
-                    open[neighbour_] = neighbour;
-                }
+                open[neighbour_] = neighbour;
             }
         }
     }

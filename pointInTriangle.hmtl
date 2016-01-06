@@ -1,0 +1,57 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Path Finding</title>
+        <meta name="description" content="">
+        <style>
+
+        </style>
+        <script type="text/javascript" src="aStar.js"></script>
+        <script type="text/javascript" src="pathfinding.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    </head>
+    <body>
+        <canvas id="canvas" width="220" height="220">Your browser does not support Canvas</canvas>
+
+        <script type="text/javascript">
+            var triFan = [10, 10, 10, 100, 100, 10, 100, 100, 200, 10, 200, 100, 200, 150, 100, 150, 50, 200];
+            var px = 50;
+            var py = 50;
+
+            function draw() {
+                var canvas = document.getElementById("canvas");
+                if (canvas.getContext) {
+                    var ctx = canvas.getContext("2d");
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'blue';
+                    ctx.moveTo(triFan[0], triFan[1]);
+                    ctx.lineTo(triFan[2], triFan[3]);
+                    for (var i=4; i<triFan.length; i+=2) {
+                        ctx.lineTo(triFan[i], triFan[i+1]);
+                        ctx.lineTo(triFan[i-4], triFan[i-3]);
+                    }
+                    ctx.stroke();
+
+                    if (triFan.contains(px, py)) {
+                        ctx.fillStyle = "green";
+                    } else {
+                        ctx.fillStyle = "black";
+                    }
+                    ctx.fillRect(px - 2, py - 2, 4, 4);
+                }
+            }
+
+            $("#canvas").on("click", function (e) {
+                px = e.offsetX;
+                py = e.offsetY;
+                draw();
+            });
+
+            draw();
+        </script>
+    </body>
+</html>
